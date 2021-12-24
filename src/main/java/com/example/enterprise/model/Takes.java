@@ -22,6 +22,19 @@ public class Takes {
     @Size(max = 100)
     public Integer score;
 
+    public Takes() {
+    }
+
+    public Takes(Course course, Employee employee) {
+        this.course = course;
+        this.employee = employee;
+        this.enrollDate = new Date();
+        this.completed = false;
+        this.passed = null;
+        this.score = null;
+        this.finishDate = null;
+    }
+
     /* 打印已完成的修读信息 */
     public String completedFormat() {
         if (!completed)
@@ -37,4 +50,6 @@ public class Takes {
 
         return fmt.format(args);
     }
+
+
 }

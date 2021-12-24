@@ -16,12 +16,14 @@ public class AppRunner {
     public AppRunner(CourseRepository courseRepository,
                      EmployeeRepository employeeRepository,
                      DepartmentRepository departmentRepository,
-                     TakesRepository takesRepository) {
+                     TakesRepository takesRepository,
+                     LinkRepository linkRepository) {
         this.holder =
                 new RepositoryHolder(courseRepository,
                         employeeRepository,
                         departmentRepository,
-                        takesRepository);
+                        takesRepository,
+                        linkRepository);
     }
 
     private void initData() {

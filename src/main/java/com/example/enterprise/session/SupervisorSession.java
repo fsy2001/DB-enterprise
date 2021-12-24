@@ -31,7 +31,6 @@ public class SupervisorSession extends EmployeeSession implements Session {
                         showInfo();
                         break;
 
-
                     case "exit":
                     case "logout":
                         alive = false;

@@ -7,8 +7,8 @@ import com.example.enterprise.repository.EmployeeRepository;
 import com.example.enterprise.repository.RepositoryHolder;
 
 import javax.validation.ConstraintViolationException;
-import java.util.Scanner;
 import java.util.Date;
+import java.util.Scanner;
 
 public class RootSession implements Session {
     private final DepartmentRepository departmentRepository;
@@ -42,6 +42,10 @@ public class RootSession implements Session {
 
                     case "add-employee":
                         addEmployee();
+                        break;
+
+                    case "set-instructor":
+                        setInstructor();
                         break;
 
                     case "exit":
@@ -91,10 +95,14 @@ public class RootSession implements Session {
             /* 获取雇员对象 */
             System.out.print("supervisor ID: ");
             int id = Integer.parseInt(scanner.nextLine());
+            Employee employee = employeeRepository.findById(id)
+                    .orElseThrow(() -> new IllegalArgumentException("employee not exist"));
+
+            /* 教员、部门主管不得兼职 */
+            if (employee.instructor) throw new IllegalArgumentException("instructor can't be supervisor");
 
             /* 绑定并储存 */
-            department.supervisor = employeeRepository.findById(id)
-                    .orElseThrow(() -> new IllegalArgumentException("employee not exist"));
+            department.supervisor = employee;
             departmentRepository.save(department);
         } catch (NumberFormatException | ConstraintViolationException e) {
             System.out.println("incorrect format");
@@ -130,6 +138,31 @@ public class RootSession implements Session {
 
             employeeRepository.save(employee);
         } catch (NumberFormatException | ConstraintViolationException e) {
+            System.out.println("incorrect format");
+        } catch (IllegalArgumentException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    private void setInstructor() {
+        try {
+            /* 根据用户输入的ID找到对应员工 */
+            Scanner scanner = new Scanner(System.in);
+            System.out.print("instructor ID: ");
+            int id = Integer.parseInt(scanner.nextLine());
+            Employee employee = employeeRepository.findById(id)
+                    .orElseThrow(()->new IllegalArgumentException("employee not exist"));
+
+            if (employee.instructor)
+                throw new IllegalArgumentException("already an instructor"); // 不能将已经是教员的人设置为教员
+
+            if (employee.department.supervisor.equals(employee)) // 教员、部门主管不得兼职
+                throw new IllegalArgumentException("department supervisor can't be instructor");
+
+            employee.instructor = true;
+            employeeRepository.save(employee);
+
+        } catch (NumberFormatException e) {
             System.out.println("incorrect format");
         } catch (IllegalArgumentException e) {
             System.out.println(e.getMessage());

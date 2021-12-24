@@ -1,11 +1,13 @@
 package com.example.enterprise.session;
 
 import com.example.enterprise.model.Employee;
+import com.example.enterprise.model.Takes;
 import com.example.enterprise.repository.EmployeeRepository;
 import com.example.enterprise.repository.RepositoryHolder;
 import com.example.enterprise.repository.TakesRepository;
 
 import javax.validation.ConstraintViolationException;
+import java.util.List;
 import java.util.Scanner;
 
 public class EmployeeSession implements Session {
@@ -113,7 +115,6 @@ public class EmployeeSession implements Session {
         } catch (IllegalArgumentException e) {
             System.out.println(e.getMessage());
         }
-
     }
 
     protected void showInfo() {
@@ -121,24 +122,26 @@ public class EmployeeSession implements Session {
     }
 
     protected void showCourse() {
-//        List<Takes> takesList = takesRepository.findCurrentCourse(user.id);
-//        if (takesList.size() == 0) {
-//            System.out.println("empty course list");
-//            return;
-//        }
-//        for (Takes record : takesList)
-//            System.out.println("course: " + record.course.courseName +
-//                    " instructor: " + record.course.instructor.name);
+        List<Takes> takesList =
+                takesRepository.findTakesByEmployeeAndCompleted(user, false);
+        if (takesList.size() == 0) {
+            System.out.println("empty course list");
+            return;
+        }
+
+        takesList.forEach(takes ->
+                        System.out.println("course: " + takes.course.courseName +
+                    " instructor: " + takes.course.instructor.name));
     }
 
     protected void showHistoryScore() {
-//        List<Takes> takesList = takesRepository.findHistory(user);
-//        if (takesList.size() == 0) {
-//            System.out.println("empty history list");
-//            return;
-//        }
-//        for (Takes record : takesList) {
-//            System.out.println(record.completedFormat());
-//        }
+        List<Takes> takesList =
+                takesRepository.findTakesByEmployeeAndCompleted(user, true);
+        if (takesList.size() == 0) {
+            System.out.println("empty course list");
+            return;
+        }
+
+        takesList.forEach(takes -> System.out.println(takes.completedFormat()));
     }
 }
