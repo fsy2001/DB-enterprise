@@ -8,11 +8,6 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.PrintWriter;
-import java.util.Scanner;
-
 @Configuration
 public class AppRunner {
     RepositoryHolder holder;
@@ -24,9 +19,9 @@ public class AppRunner {
                      TakesRepository takesRepository) {
         this.holder =
                 new RepositoryHolder(courseRepository,
-                employeeRepository,
-                departmentRepository,
-                takesRepository);
+                        employeeRepository,
+                        departmentRepository,
+                        takesRepository);
     }
 
     private void initData() {
@@ -37,12 +32,8 @@ public class AppRunner {
     public CommandLineRunner commandLineRunner() {
         return args -> {
             initData();
-            OutputStream outputStream = System.out;
-            InputStream inputStream = System.in;
-            PrintWriter printer = new PrintWriter(outputStream, true);
-            Scanner scanner = new Scanner(inputStream);
             Session session = new MainSession(this.holder);
-            session.start(scanner, printer);
+            session.start();
         };
     }
 }

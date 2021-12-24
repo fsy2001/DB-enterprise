@@ -1,109 +1,144 @@
 package com.example.enterprise.session;
 
 import com.example.enterprise.model.Employee;
-import com.example.enterprise.model.Takes;
 import com.example.enterprise.repository.EmployeeRepository;
 import com.example.enterprise.repository.RepositoryHolder;
 import com.example.enterprise.repository.TakesRepository;
 
-import java.io.PrintWriter;
+import javax.validation.ConstraintViolationException;
 import java.util.Scanner;
 
 public class EmployeeSession implements Session {
     protected final RepositoryHolder holder;
     protected final Employee user;
     protected final EmployeeRepository employeeRepository;
-    private Scanner in;
-    private PrintWriter out;
+    protected final TakesRepository takesRepository;
 
     public EmployeeSession(RepositoryHolder holder, Employee user) {
         this.holder = holder;
         this.employeeRepository = holder.employeeRepository;
+        this.takesRepository = holder.takesRepository;
         this.user = user;
     }
 
     @Override
-    public void start(Scanner in, PrintWriter out) {
-        this.in = in;
-        this.out = out;
+    public void start() {
+        Scanner scanner = new Scanner(System.in);
 
-        out.println("--- logged in as an employee ---"); // TODO: 显示用户信息
+        System.out.println("--- logged in as an employee ---");
         boolean alive = true;
         while (alive) {
             try {
-                /* 获取并检查命令 */
-                out.println("input command: ");
-                String message = in.nextLine();
-                String[] parts = message.split("\\s+");
-                if (parts.length == 0) {
-                    out.println("syntax error");
-                    continue;
-                }
+                System.out.print("employee> ");
 
                 /* 根据命令内容分配任务 */
-                String command = parts[0];
+                String command = scanner.nextLine();
                 switch (command) {
-                    // TODO: 增加一些命令
-                    case "alter":
-                        updateInfo(parts);
+                    case "update-info":
+                        updateInfo();
                         break;
-//                    case "lessons":
-//                        lessonsInfo(parts);
-//                        break;
+
+                    case "show-course":
+                        showCourse();
+                        break;
+
+                    case "show-info":
+                        showInfo();
+                        break;
+
+                    case "show-history-score":
+                        showHistoryScore();
+                        break;
 
                     case "exit":
+                    case "logout":
                         alive = false;
                         break;
+
                     default:
-                        out.println("command not exist");
+                        System.out.println("command not found");
                 }
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
 
-        out.println("--- logged out ---");
+        System.out.println("--- logged out ---");
     }
 
-    public void updateInfo(String[] parts) {
-        if (parts.length < 3) {
-            out.println("syntax error");
-            return;
-        }
-        switch (parts[1]) {
-            case "name":
-                user.name = parts[2];
-                break;
-            case "gender":
-                if (parts[2].equals("male")) {
-                    user.gender = true;
-                } else if (parts[2].equals("female")) {
-                    user.gender = false;
-                } else {
-                    out.println("syntax error");
+    protected void updateInfo() {
+        try {
+            String property;
+            Scanner scanner = new Scanner(System.in);
+
+            System.out.print("enter property (or finish): ");
+            while (!(property = scanner.nextLine()).equals("finish")) {
+                switch (property) {
+                    case "name":
+                        System.out.print("name: ");
+                        user.name = scanner.nextLine();
+                        break;
+
+                    case "age":
+                        System.out.print("age: ");
+                        user.age = Integer.parseInt(scanner.nextLine());
+                        break;
+
+                    case "gender":
+                        System.out.print("gender: ");
+                        String gender = scanner.nextLine();
+                        if (gender.equals("male")) user.gender = true;
+                        else if (gender.equals("female")) user.gender = false;
+                        else throw new IllegalArgumentException("incorrect format");
+                        break;
+
+                    case "phone":
+                        System.out.print("phone: ");
+                        user.phoneNumber = scanner.nextLine();
+                        break;
+
+                    case "email":
+                        System.out.print("email: ");
+                        user.email = scanner.nextLine();
+                        break;
+
+                    default:
+                        System.out.println("no such property");
                 }
-                break;
-            case "age":
-                user.age = Integer.parseInt(parts[2]);
-                break;
-            case "phoneNumber":
-                user.phoneNumber = parts[2];
-                break;
-            case "email":
-                user.email = parts[2];
-                break;
-            default:
-                out.println("syntax error");
+                System.out.print("enter property (or finish): ");
+            }
+            employeeRepository.save(user);
+        } catch (NumberFormatException | ConstraintViolationException e) {
+            System.out.println("incorrect format");
+        } catch (IllegalArgumentException e) {
+            System.out.println(e.getMessage());
         }
 
-        employeeRepository.save(user);
     }
 
-//    public void lessonsInfo(String[] parts){
-//        if (parts.length < 2) {
-//            out.println("syntax error");
+    protected void showInfo() {
+        System.out.println(user.toString());
+    }
+
+    protected void showCourse() {
+//        List<Takes> takesList = takesRepository.findCurrentCourse(user.id);
+//        if (takesList.size() == 0) {
+//            System.out.println("empty course list");
 //            return;
 //        }
-//
-//    }
+//        for (Takes record : takesList)
+//            System.out.println("course: " + record.course.courseName +
+//                    " instructor: " + record.course.instructor.name);
+    }
+
+    protected void showHistoryScore() {
+//        List<Takes> takesList = takesRepository.findHistory(user);
+//        if (takesList.size() == 0) {
+//            System.out.println("empty history list");
+//            return;
+//        }
+//        for (Takes record : takesList) {
+//            System.out.println(record.completedFormat());
+//        }
+    }
 }

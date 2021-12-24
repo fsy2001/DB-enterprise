@@ -5,12 +5,14 @@ import javax.persistence.*;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Positive;
-import java.sql.Date;
+import java.util.Date;
+import java.text.MessageFormat;
 
 @Entity
 @Table(name = "employee")
 public class Employee {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     public Integer id;
 
     @ManyToOne
@@ -33,5 +35,28 @@ public class Employee {
         if (!(obj instanceof Employee)) return false;
         Employee employee = (Employee) obj;
         return this.id.equals(employee.id);
+    }
+
+    @Override
+    public String toString() {
+        Object[] args = {
+                this.id,
+                this.name,
+                this.age,
+                this.gender ? "male" : "female",
+                this.department == null ? "null" : this.department.departmentName,
+                this.phoneNumber == null ? "null" : this.phoneNumber,
+                this.email == null ? "null" : this.email,
+                this.entranceDate.toString()};
+        MessageFormat fmt = new MessageFormat(
+                "ID: {0}\n" +
+                        "name: {1}\n" +
+                        "age: {2}\n" +
+                        "gender: {3}\n" +
+                        "department: {4}\n" +
+                        "phone: {5}\n" +
+                        "email: {6}\n" +
+                        "entrance date: {7}");
+        return fmt.format(args);
     }
 }

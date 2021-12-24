@@ -1,53 +1,52 @@
 package com.example.enterprise.session;
 
 import com.example.enterprise.model.Employee;
-import com.example.enterprise.repository.DepartmentRepository;
 import com.example.enterprise.repository.EmployeeRepository;
 import com.example.enterprise.repository.RepositoryHolder;
 
-import java.io.PrintWriter;
 import java.util.Scanner;
 
 public class MainSession implements Session {
-    public RepositoryHolder holder;
     private final EmployeeRepository employeeRepository;
-    private final DepartmentRepository departmentRepository;
+    public RepositoryHolder holder;
 
     public MainSession(RepositoryHolder holder) {
         this.holder = holder;
         this.employeeRepository = holder.employeeRepository;
-        this.departmentRepository = holder.departmentRepository;
     }
 
-    public void start(Scanner in, PrintWriter out) {
-        out.println("--- enterprise management system started ---");
+    public void start() {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("--- enterprise management system started ---");
         Session session;
 
         /* 登录逻辑 */
         while (true) {
             try {
-                out.println("input username: ");
-                String username = in.nextLine();
-                if (username.equals("exit")) break; // 退出指令
-
-                if (username.equals("root")) {
-                    session = new RootSession(holder);
-                } else {
-                    Integer userId = Integer.parseInt(username);
-                    Employee employee = employeeRepository.findById(userId).orElseThrow(
-                            () -> new IllegalArgumentException("user not exist, try again"));
-                    if (employee.instructor) session = new InstructorSession(holder, employee);
-                    else { // 判断是否为部门主管
-                        Employee supervisor = employee.department.supervisor;
-                        if (employee.equals(supervisor)) session = new SupervisorSession(holder, employee);
+                System.out.print("> ");
+                String command = scanner.nextLine();
+                if (command.equals("login")) { // 登录
+                    System.out.print("input username: ");
+                    String username = scanner.nextLine();
+                    if (username.equals("root")) {
+                        session = new RootSession(holder);
+                    } else {
+                        Integer userId = Integer.parseInt(username);
+                        Employee employee = employeeRepository.findById(userId).orElseThrow(
+                                () -> new IllegalArgumentException("user not exist, try again"));
+                        if (employee.instructor) session = new InstructorSession(holder, employee);
+                        else if (employee.equals(employee.department.supervisor))
+                            session = new SupervisorSession(holder, employee);
                         else session = new EmployeeSession(holder, employee);
                     }
-                }
-                session.start(in, out);
+                    session.start();
+                } else if (command.equals("exit")) return;
+                else System.out.println("command not found");
+
             } catch (NumberFormatException e) {
-                out.println("invalid format");
+                System.out.println("invalid format");
             } catch (IllegalArgumentException e) {
-                out.println(e.getMessage());
+                System.out.println(e.getMessage());
             }
         }
     }

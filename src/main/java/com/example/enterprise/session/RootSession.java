@@ -1,46 +1,138 @@
 package com.example.enterprise.session;
 
+import com.example.enterprise.model.Department;
+import com.example.enterprise.model.Employee;
+import com.example.enterprise.repository.DepartmentRepository;
+import com.example.enterprise.repository.EmployeeRepository;
 import com.example.enterprise.repository.RepositoryHolder;
 
-import java.io.PrintWriter;
+import javax.validation.ConstraintViolationException;
 import java.util.Scanner;
+import java.util.Date;
 
 public class RootSession implements Session {
-    private final RepositoryHolder holder;
+    private final DepartmentRepository departmentRepository;
+    private final EmployeeRepository employeeRepository;
 
     public RootSession(RepositoryHolder holder) {
-        this.holder = holder;
+        this.departmentRepository = holder.departmentRepository;
+        this.employeeRepository = holder.employeeRepository;
     }
 
     @Override
-    public void start(Scanner in, PrintWriter out) {
-        out.println("--- logged in as the system administrator ---");
+    public void start() {
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.println("--- logged in as the system administrator ---");
         boolean alive = true;
         while (alive) {
             try {
-                /* 获取并检查命令 */
-                out.println("input command: ");
-                String message = in.nextLine();
-                String[] parts = message.split("\\s+");
-                if (parts.length == 0) {
-                    out.println("syntax error");
-                    continue;
-                }
+                System.out.print("root> ");
 
                 /* 根据命令内容分配任务 */
-                String command = parts[0];
+                String command = scanner.nextLine();
                 switch (command) {
-                    // TODO: 增加一些命令
+                    case "add-department":
+                        addDepartment();
+                        break;
+
+                    case "set-supervisor":
+                        setSupervisor();
+                        break;
+
+                    case "add-employee":
+                        addEmployee();
+                        break;
 
                     case "exit":
                         alive = false;
                         break;
+
+                    default:
+                        System.out.println("command not found");
                 }
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
 
-        out.println("--- logged out ---");
+        System.out.println("--- logged out ---");
+    }
+
+    private void addDepartment() {
+        try {
+            Scanner scanner = new Scanner(System.in);
+            System.out.print("department name: ");
+            String departmentName = scanner.nextLine();
+
+            /* 检查是否重名 */
+            if (departmentRepository.existsById(departmentName)) {
+                System.out.println("name taken");
+                return;
+            }
+
+            Department department = new Department(departmentName);
+            departmentRepository.save(department);
+        } catch (ConstraintViolationException e) {
+            System.out.println("incorrect format");
+        }
+    }
+
+    private void setSupervisor() {
+        try {
+            Scanner scanner = new Scanner(System.in);
+
+            /* 获取部门对象 */
+            System.out.print("department name: ");
+            String departmentName = scanner.nextLine();
+            Department department = departmentRepository.findById(departmentName)
+                    .orElseThrow(() -> new IllegalArgumentException("department not exist"));
+
+            /* 获取雇员对象 */
+            System.out.print("supervisor ID: ");
+            int id = Integer.parseInt(scanner.nextLine());
+
+            /* 绑定并储存 */
+            department.supervisor = employeeRepository.findById(id)
+                    .orElseThrow(() -> new IllegalArgumentException("employee not exist"));
+            departmentRepository.save(department);
+        } catch (NumberFormatException | ConstraintViolationException e) {
+            System.out.println("incorrect format");
+        } catch (IllegalArgumentException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    private void addEmployee() {
+        try {
+            Scanner scanner = new Scanner(System.in);
+            Employee employee = new Employee();
+
+            System.out.print("name: ");
+            employee.name = scanner.nextLine();
+
+            employee.instructor = false;
+
+            System.out.print("department: ");
+            employee.department = departmentRepository.findById(scanner.nextLine())
+                    .orElseThrow(() -> new IllegalArgumentException("department not exist"));
+
+            System.out.print("age: ");
+            employee.age = Integer.parseInt(scanner.nextLine());
+
+            System.out.print("gender: ");
+            String gender = scanner.nextLine();
+            if (gender.equals("male")) employee.gender = true;
+            else if (gender.equals("female")) employee.gender = false;
+            else throw new IllegalArgumentException("incorrect format");
+
+            employee.entranceDate = new Date();
+
+            employeeRepository.save(employee);
+        } catch (NumberFormatException | ConstraintViolationException e) {
+            System.out.println("incorrect format");
+        } catch (IllegalArgumentException e) {
+            System.out.println(e.getMessage());
+        }
     }
 }
