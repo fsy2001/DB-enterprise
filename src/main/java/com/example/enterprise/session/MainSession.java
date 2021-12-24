@@ -31,7 +31,7 @@ public class MainSession implements Session {
                 if (username.equals("exit")) break; // 退出指令
 
                 if (username.equals("root")) {
-                    session = new RootSession();
+                    session = new RootSession(holder);
                 } else {
                     Integer userId = Integer.parseInt(username);
                     Employee employee = employeeRepository.findById(userId).orElseThrow(

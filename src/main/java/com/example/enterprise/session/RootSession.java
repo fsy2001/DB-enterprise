@@ -1,9 +1,17 @@
 package com.example.enterprise.session;
 
+import com.example.enterprise.repository.RepositoryHolder;
+
 import java.io.PrintWriter;
 import java.util.Scanner;
 
 public class RootSession implements Session {
+    private final RepositoryHolder holder;
+
+    public RootSession(RepositoryHolder holder) {
+        this.holder = holder;
+    }
+
     @Override
     public void start(Scanner in, PrintWriter out) {
         out.println("--- logged in as the system administrator ---");
