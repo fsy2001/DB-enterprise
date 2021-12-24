@@ -29,9 +29,14 @@ public class AppRunner {
                 takesRepository);
     }
 
+    private void initData() {
+
+    }
+
     @Bean
     public CommandLineRunner commandLineRunner() {
         return args -> {
+            initData();
             OutputStream outputStream = System.out;
             InputStream inputStream = System.in;
             PrintWriter printer = new PrintWriter(outputStream, true);

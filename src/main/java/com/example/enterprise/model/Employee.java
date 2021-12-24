@@ -20,7 +20,7 @@ public class Employee {
 
     @NotBlank
     public String name;
-    public Boolean gender;
+    public Boolean gender; // 男: true, 女: false
     @Positive
     public Integer age;
     public Date entranceDate;

@@ -38,8 +38,7 @@ public class MainSession implements Session {
                             () -> new IllegalArgumentException("user not exist, try again"));
                     if (employee.instructor) session = new InstructorSession(holder, employee);
                     else { // 判断是否为部门主管
-                        Employee supervisor =
-                                departmentRepository.getById(employee.department.departmentName).supervisor;
+                        Employee supervisor = employee.department.supervisor;
                         if (employee.equals(supervisor)) session = new SupervisorSession(holder, employee);
                         else session = new EmployeeSession(holder, employee);
                     }
