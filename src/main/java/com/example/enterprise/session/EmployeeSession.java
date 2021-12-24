@@ -17,7 +17,7 @@ public class EmployeeSession implements Session {
 
     @Override
     public void start(Scanner in, PrintWriter out) {
-        out.println("--- logged in as an employee ---");
+        out.println("--- logged in as an employee ---"); // TODO: 显示用户信息
         boolean alive = true;
         while (alive) {
             try {
