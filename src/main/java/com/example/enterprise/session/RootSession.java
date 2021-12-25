@@ -2,26 +2,32 @@ package com.example.enterprise.session;
 
 import com.example.enterprise.model.Department;
 import com.example.enterprise.model.Employee;
-import com.example.enterprise.repository.DepartmentRepository;
-import com.example.enterprise.repository.EmployeeRepository;
-import com.example.enterprise.repository.RepositoryHolder;
+import com.example.enterprise.model.Link;
+import com.example.enterprise.model.Takes;
+import com.example.enterprise.repository.*;
 
 import javax.validation.ConstraintViolationException;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Scanner;
 
 public class RootSession implements Session {
     private final DepartmentRepository departmentRepository;
     private final EmployeeRepository employeeRepository;
+    private final LinkRepository linkRepository;
+    private final TakesRepository takesRepository;
+    private final Scanner scanner = new Scanner(System.in);
 
     public RootSession(RepositoryHolder holder) {
         this.departmentRepository = holder.departmentRepository;
         this.employeeRepository = holder.employeeRepository;
+        this.linkRepository = holder.linkRepository;
+        this.takesRepository = holder.takesRepository;
     }
 
     @Override
     public void start() {
-        Scanner scanner = new Scanner(System.in);
 
         System.out.println("--- logged in as the system administrator ---");
         boolean alive = true;
@@ -113,7 +119,7 @@ public class RootSession implements Session {
 
     private void addEmployee() {
         try {
-            Scanner scanner = new Scanner(System.in);
+            /* 员工基本信息 */
             Employee employee = new Employee();
 
             System.out.print("name: ");
@@ -136,7 +142,18 @@ public class RootSession implements Session {
 
             employee.entranceDate = new Date();
 
-            employeeRepository.save(employee);
+            Employee newEmployee = employeeRepository.save(employee);
+
+            /* 为新入职的员工分配必修课程 */
+            List<Link> links =
+                    linkRepository.findLinksByDepartmentAndMandatory(newEmployee.department, true);
+            List<Takes> toTakeList = new ArrayList<>();
+            links.forEach(link -> {
+                Takes takes = new Takes(link.course, newEmployee);
+                toTakeList.add(takes);
+            });
+            takesRepository.saveAll(toTakeList);
+
         } catch (NumberFormatException | ConstraintViolationException e) {
             System.out.println("incorrect format");
         } catch (IllegalArgumentException e) {

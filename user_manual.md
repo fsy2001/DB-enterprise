@@ -24,12 +24,24 @@
 
 `set-score` 命令依次所有未结课的员工赋分，可以输入 `pass` 来跳过某员工。
 
+### 部门主管
+
+`department-course` 命令列出该部门的所有课程。
+
+`department-employee` 命令列出该部门的所有员工。
+
+`search-name` 命令根据姓名查找员工号（只能查找本部门）。
+
+`list-score` 命令根据员工号查找成绩。
+
+`allocate-course` 命令根据员工号和课程，将该员工加入该课程。
+
 ### 系统管理员
 
 `add-department` 命令可以新建部门，新部门的主管为空。
 
 `set-supervisor` 命令可以设置部门主管。
 
-`add-employee` 命令可以新建一个员工。
+`add-employee` 命令可以新建一个员工（会自动修读部门内所有必修课）。
 
 `set-instructor` 命令可以任命一位教员。

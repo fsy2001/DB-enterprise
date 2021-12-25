@@ -15,6 +15,7 @@ public class EmployeeSession implements Session {
     protected final Employee user;
     protected final EmployeeRepository employeeRepository;
     protected final TakesRepository takesRepository;
+    protected Scanner scanner = new Scanner(System.in);
 
     public EmployeeSession(RepositoryHolder holder, Employee user) {
         this.holder = holder;
@@ -25,8 +26,6 @@ public class EmployeeSession implements Session {
 
     @Override
     public void start() {
-        Scanner scanner = new Scanner(System.in);
-
         System.out.println("--- logged in as an employee ---");
         boolean alive = true;
         while (alive) {
@@ -71,7 +70,6 @@ public class EmployeeSession implements Session {
     protected void updateInfo() {
         try {
             String property;
-            Scanner scanner = new Scanner(System.in);
 
             System.out.print("enter property (or finish): ");
             while (!(property = scanner.nextLine()).equals("finish")) {
@@ -129,16 +127,14 @@ public class EmployeeSession implements Session {
             return;
         }
 
-        takesList.forEach(takes ->
-                        System.out.println("course: " + takes.course.courseName +
-                    " instructor: " + takes.course.instructor.name));
+        takesList.forEach(takes -> System.out.println(takes.course.toString()));
     }
 
     protected void showHistoryScore() {
         List<Takes> takesList =
                 takesRepository.findTakesByEmployeeAndCompleted(user, true);
         if (takesList.size() == 0) {
-            System.out.println("empty course list");
+            System.out.println("empty score list");
             return;
         }
 

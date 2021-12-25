@@ -19,4 +19,10 @@ public class Department {
     public Department(String departmentName) {
         this.departmentName = departmentName;
     }
+
+    public boolean equals(Object obj) {
+        if (!(obj instanceof Department)) return false;
+        Department department = (Department) obj;
+        return this.departmentName.equals(department.departmentName);
+    }
 }

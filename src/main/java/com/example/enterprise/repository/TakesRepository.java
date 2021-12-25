@@ -10,8 +10,9 @@ import java.util.List;
 
 @Repository
 public interface TakesRepository extends JpaRepository<Takes, Integer> {
-    List<Takes> findTakesByEmployee(Employee employee);
     List<Takes> findTakesByEmployeeAndCompleted(Employee employee, Boolean completed);
-    List<Takes> findTakesByCourse(Course course);
+    /* 查找该课程未结业的修读记录（登分用） */
     List<Takes> findTakesByCourseAndCompleted(Course course, Boolean completed);
+    /* 查找该员工该门课是否正在修读 */
+    boolean existsByCourseAndEmployeeAndCompleted(Course course, Employee employee, Boolean completed);
 }

@@ -50,6 +50,4 @@ public class Takes {
 
         return fmt.format(args);
     }
-
-
 }
