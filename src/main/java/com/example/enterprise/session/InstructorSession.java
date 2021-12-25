@@ -85,10 +85,14 @@ public class InstructorSession extends EmployeeSession implements Session {
 
             /* 选择课程关联的部门列表，并指定其必修/选修 */
             List<Link> links = new ArrayList<>();
+            List<String> departmentNames = new ArrayList<>(); // 用于防止部门重复
             String departmentName;
             System.out.print("department name: ");
             departmentName = scanner.nextLine();
             do {
+                if (departmentNames.contains(departmentName))
+                    throw new IllegalArgumentException("duplicate"); // 发现重复部门，报错退出
+                departmentNames.add(departmentName);
                 Department department = departmentRepository.findById(departmentName)
                         .orElseThrow(() -> new IllegalArgumentException("department not exist"));
 
