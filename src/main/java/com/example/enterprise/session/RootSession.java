@@ -156,7 +156,8 @@ public class RootSession implements Session {
             if (employee.instructor)
                 throw new IllegalArgumentException("already an instructor"); // 不能将已经是教员的人设置为教员
 
-            if (employee.department.supervisor.equals(employee)) // 教员、部门主管不得兼职
+            if (employee.department.supervisor != null
+                    && employee.department.supervisor.equals(employee)) // 教员、部门主管不得兼职
                 throw new IllegalArgumentException("department supervisor can't be instructor");
 
             employee.instructor = true;

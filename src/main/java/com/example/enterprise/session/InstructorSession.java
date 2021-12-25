@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
-import java.util.stream.Collectors;
 
 public class InstructorSession extends EmployeeSession implements Session {
     private final CourseRepository courseRepository;
@@ -94,12 +93,14 @@ public class InstructorSession extends EmployeeSession implements Session {
                         .orElseThrow(() -> new IllegalArgumentException("department not exist"));
 
                 boolean mandatory;
+                System.out.print("course type (mandatory / optional): ");
                 String type = scanner.nextLine();
                 if (type.equals("mandatory")) mandatory = true;
                 else if (type.equals("optional")) mandatory = false;
                 else throw new IllegalArgumentException("incorrect format");
 
                 links.add(new Link(course, department, mandatory));
+                System.out.print("department name (or finish to exit): ");
             }
             while (!(departmentName = scanner.nextLine()).equals("finish"));
 
@@ -125,7 +126,8 @@ public class InstructorSession extends EmployeeSession implements Session {
         List<Takes> takesList = new ArrayList<>();
 
         for (Employee employee : employees) {
-            if (employee.instructor || employee.department.supervisor.equals(employee))
+            if (employee.instructor ||
+                    (employee.department.supervisor != null && employee.department.supervisor.equals(employee)))
                 continue; // 教员和部门主管免修
             Takes takes = new Takes(course, employee);
             takesList.add(takes);
