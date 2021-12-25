@@ -107,6 +107,10 @@ public class RootSession implements Session {
             /* 教员、部门主管不得兼职 */
             if (employee.instructor) throw new IllegalArgumentException("instructor can't be supervisor");
 
+            /* 非本部门员工不得担任主管 */
+            if (!employee.department.equals(department))
+                throw new IllegalArgumentException("department supervisor must be chosen inside department");
+
             /* 绑定并储存 */
             department.supervisor = employee;
             departmentRepository.save(department);
