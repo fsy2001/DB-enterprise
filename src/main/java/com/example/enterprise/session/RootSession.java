@@ -209,6 +209,14 @@ public class RootSession implements Session {
             Employee employee =employeeRepository.findById(id)
                     .orElseThrow(() -> new IllegalArgumentException("no such employee"));
             System.out.println(employee.toString());
+            System.out.println("history scores: ");
+            List<Takes> takesList =
+                    takesRepository.findTakesByEmployeeAndCompleted(employee, true);
+            if (takesList.size() == 0) {
+                System.out.println("empty score list");
+                return;
+            }
+            takesList.forEach(takes -> System.out.println(takes.completedFormat()));
         } catch (NumberFormatException e) {
             System.out.println("incorrect format");
         }catch (IllegalArgumentException e) {
