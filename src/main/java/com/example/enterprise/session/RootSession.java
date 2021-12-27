@@ -54,6 +54,14 @@ public class RootSession implements Session {
                         setInstructor();
                         break;
 
+                    case "search-employee":
+                        searchEmployee();
+                        break;
+
+                    case "update-employee":
+                        updateEmployee();
+                        break;
+
                     case "exit":
                         alive = false;
                         break;
@@ -185,6 +193,73 @@ public class RootSession implements Session {
             employeeRepository.save(employee);
 
         } catch (NumberFormatException e) {
+            System.out.println("incorrect format");
+        } catch (IllegalArgumentException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    private void searchEmployee(){
+        try {
+            System.out.print("id: ");
+            int id = Integer.parseInt(scanner.nextLine());
+            Employee employee =employeeRepository.findById(id)
+                    .orElseThrow(() -> new IllegalArgumentException("no such employee"));
+            System.out.println(employee.toString());
+        } catch (NumberFormatException e) {
+            System.out.println("incorrect format");
+        }catch (IllegalArgumentException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    private void updateEmployee(){
+        try {
+            System.out.print("id: ");
+            int id = Integer.parseInt(scanner.nextLine());
+            Employee employee = employeeRepository.findById(id)
+                    .orElseThrow(() -> new IllegalArgumentException("no such employee"));
+
+            String property;
+
+            System.out.print("enter property (or finish): ");
+            while (!(property = scanner.nextLine()).equals("finish")) {
+                switch (property) {
+                    case "name":
+                        System.out.print("name: ");
+                        employee.name = scanner.nextLine();
+                        break;
+
+                    case "age":
+                        System.out.print("age: ");
+                        employee.age = Integer.parseInt(scanner.nextLine());
+                        break;
+
+                    case "gender":
+                        System.out.print("gender: ");
+                        String gender = scanner.nextLine();
+                        if (gender.equals("male")) employee.gender = true;
+                        else if (gender.equals("female")) employee.gender = false;
+                        else throw new IllegalArgumentException("incorrect format");
+                        break;
+
+                    case "phone":
+                        System.out.print("phone: ");
+                        employee.phoneNumber = scanner.nextLine();
+                        break;
+
+                    case "email":
+                        System.out.print("email: ");
+                        employee.email = scanner.nextLine();
+                        break;
+
+                    default:
+                        System.out.println("no such property");
+                }
+                System.out.print("enter property (or finish): ");
+            }
+            employeeRepository.save(employee);
+        }catch (NumberFormatException | ConstraintViolationException e) {
             System.out.println("incorrect format");
         } catch (IllegalArgumentException e) {
             System.out.println(e.getMessage());
