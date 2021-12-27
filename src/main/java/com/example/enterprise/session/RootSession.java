@@ -1,9 +1,6 @@
 package com.example.enterprise.session;
 
-import com.example.enterprise.model.Department;
-import com.example.enterprise.model.Employee;
-import com.example.enterprise.model.Link;
-import com.example.enterprise.model.Takes;
+import com.example.enterprise.model.*;
 import com.example.enterprise.repository.*;
 
 import javax.validation.ConstraintViolationException;
@@ -15,6 +12,7 @@ import java.util.Scanner;
 public class RootSession implements Session {
     private final DepartmentRepository departmentRepository;
     private final EmployeeRepository employeeRepository;
+    private final CourseRepository courseRepository;
     private final LinkRepository linkRepository;
     private final TakesRepository takesRepository;
     private final Scanner scanner = new Scanner(System.in);
@@ -22,6 +20,7 @@ public class RootSession implements Session {
     public RootSession(RepositoryHolder holder) {
         this.departmentRepository = holder.departmentRepository;
         this.employeeRepository = holder.employeeRepository;
+        this.courseRepository = holder.courseRepository;
         this.linkRepository = holder.linkRepository;
         this.takesRepository = holder.takesRepository;
     }
@@ -60,6 +59,10 @@ public class RootSession implements Session {
 
                     case "update-employee":
                         updateEmployee();
+                        break;
+
+                    case "update-course":
+                        updateCourse();
                         break;
 
                     case "exit":
@@ -260,6 +263,25 @@ public class RootSession implements Session {
             }
             employeeRepository.save(employee);
         }catch (NumberFormatException | ConstraintViolationException e) {
+            System.out.println("incorrect format");
+        } catch (IllegalArgumentException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    private void updateCourse(){
+        try {
+            System.out.print("course ID: ");
+            int id = Integer.parseInt(scanner.nextLine());
+            Course course = courseRepository.findById(id)
+                    .orElseThrow(() -> new IllegalArgumentException("no such course"));
+            System.out.print("course name: ");
+            course.courseName = scanner.nextLine();
+
+            System.out.print("course summary: ");
+            course.summary = scanner.nextLine();
+            courseRepository.save(course);
+        } catch (NumberFormatException e) {
             System.out.println("incorrect format");
         } catch (IllegalArgumentException e) {
             System.out.println(e.getMessage());

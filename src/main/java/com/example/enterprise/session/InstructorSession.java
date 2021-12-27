@@ -53,6 +53,10 @@ public class InstructorSession extends EmployeeSession implements Session {
                         setScore();
                         break;
 
+                    case "update-course":
+                        updateCourse();
+                        break;
+
                     case "exit":
                     case "logout":
                         alive = false;
@@ -169,6 +173,25 @@ public class InstructorSession extends EmployeeSession implements Session {
             takesRepository.saveAll(takesList);
 
         } catch (NumberFormatException | ConstraintViolationException e) {
+            System.out.println("incorrect format");
+        } catch (IllegalArgumentException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    private void updateCourse(){
+        try {
+            System.out.print("course ID: ");
+            int id = Integer.parseInt(scanner.nextLine());
+            Course course = courseRepository.findById(id)
+                    .orElseThrow(() -> new IllegalArgumentException("no such course"));
+            System.out.print("course name: ");
+            course.courseName = scanner.nextLine();
+
+            System.out.print("course summary: ");
+            course.summary = scanner.nextLine();
+            courseRepository.save(course);
+        } catch (NumberFormatException e) {
             System.out.println("incorrect format");
         } catch (IllegalArgumentException e) {
             System.out.println(e.getMessage());
