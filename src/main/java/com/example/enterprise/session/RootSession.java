@@ -183,7 +183,7 @@ public class RootSession implements Session {
             System.out.print("instructor ID: ");
             int id = Integer.parseInt(scanner.nextLine());
             Employee employee = employeeRepository.findById(id)
-                    .orElseThrow(()->new IllegalArgumentException("employee not exist"));
+                    .orElseThrow(() -> new IllegalArgumentException("employee not exist"));
 
             if (employee.instructor)
                 throw new IllegalArgumentException("already an instructor"); // 不能将已经是教员的人设置为教员
@@ -202,11 +202,11 @@ public class RootSession implements Session {
         }
     }
 
-    private void searchEmployee(){
+    private void searchEmployee() {
         try {
             System.out.print("id: ");
             int id = Integer.parseInt(scanner.nextLine());
-            Employee employee =employeeRepository.findById(id)
+            Employee employee = employeeRepository.findById(id)
                     .orElseThrow(() -> new IllegalArgumentException("no such employee"));
             System.out.println(employee.toString());
             System.out.println("history scores: ");
@@ -219,14 +219,14 @@ public class RootSession implements Session {
             takesList.forEach(takes -> System.out.println(takes.completedFormat()));
         } catch (NumberFormatException e) {
             System.out.println("incorrect format");
-        }catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
             System.out.println(e.getMessage());
         }
     }
 
-    private void updateEmployee(){
+    private void updateEmployee() {
         try {
-            System.out.print("id: ");
+            System.out.print("ID: ");
             int id = Integer.parseInt(scanner.nextLine());
             Employee employee = employeeRepository.findById(id)
                     .orElseThrow(() -> new IllegalArgumentException("no such employee"));
@@ -270,14 +270,14 @@ public class RootSession implements Session {
                 System.out.print("enter property (or finish): ");
             }
             employeeRepository.save(employee);
-        }catch (NumberFormatException | ConstraintViolationException e) {
+        } catch (NumberFormatException | ConstraintViolationException e) {
             System.out.println("incorrect format");
         } catch (IllegalArgumentException e) {
             System.out.println(e.getMessage());
         }
     }
 
-    private void updateCourse(){
+    private void updateCourse() {
         try {
             System.out.print("course ID: ");
             int id = Integer.parseInt(scanner.nextLine());

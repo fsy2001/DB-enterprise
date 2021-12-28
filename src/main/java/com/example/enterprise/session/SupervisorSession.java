@@ -2,22 +2,26 @@ package com.example.enterprise.session;
 
 import com.example.enterprise.model.*;
 import com.example.enterprise.repository.CourseRepository;
+import com.example.enterprise.repository.DepartmentRepository;
 import com.example.enterprise.repository.LinkRepository;
 import com.example.enterprise.repository.RepositoryHolder;
 
 import javax.validation.ConstraintViolationException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class SupervisorSession extends EmployeeSession implements Session {
     private final LinkRepository linkRepository;
     private final Department department;
     private final CourseRepository courseRepository;
+    private final DepartmentRepository departmentRepository;
 
     public SupervisorSession(RepositoryHolder holder, Employee user) {
         super(holder, user);
         this.department = user.department;
         this.linkRepository = holder.linkRepository;
         this.courseRepository = holder.courseRepository;
+        this.departmentRepository = holder.departmentRepository;
     }
 
     @Override
@@ -65,6 +69,22 @@ public class SupervisorSession extends EmployeeSession implements Session {
 
                     case "search-score-employee":
                         searchScoreEmployee();
+                        break;
+
+                    case "check-transfer":
+                        checkTransfer();
+                        break;
+
+                    case "list-transfer-qualified":
+                        listTransferQualified();
+                        break;
+
+                    case "list-new-course":
+                        listNewCourse();
+                        break;
+
+                    case "transfer":
+                        transfer();
                         break;
 
                     case "exit":
@@ -148,6 +168,11 @@ public class SupervisorSession extends EmployeeSession implements Session {
                     takesRepository.existsByCourseAndEmployeeAndCompleted(course, employee, false);
             if (alreadyTaken) throw new IllegalArgumentException("course already taken");
 
+            /* 检查该员工是否已通过该课程，已经通过的不得再选修 */
+            boolean alreadyPassed =
+                    takesRepository.existsByEmployeeAndCourseAndPassed(employee, course, true);
+            if (alreadyPassed) throw new IllegalArgumentException("course already passed");
+
             /* 创建并存储修读记录 */
             Takes takes = new Takes(course, employee);
             takesRepository.save(takes);
@@ -159,11 +184,12 @@ public class SupervisorSession extends EmployeeSession implements Session {
         }
     }
 
-    private void searchCourseScore(){
+    private void searchCourseScore() {
         try {
             System.out.print("Course ID: ");
             int courseId = Integer.parseInt(scanner.nextLine());
-            List<Takes> takesList = takesRepository.findTakesByCourse_CourseIdAndEmployee_Department(courseId, department);
+            List<Takes> takesList =
+                    takesRepository.findTakesByCourse_CourseIdAndEmployee_Department(courseId, department);
             if (takesList.size() == 0) {
                 System.out.println("nobody takes the course or the course doesn't exist");
                 return;
@@ -174,7 +200,7 @@ public class SupervisorSession extends EmployeeSession implements Session {
         }
     }
 
-    private void searchScoreEmployee(){
+    private void searchScoreEmployee() {
         try {
             System.out.print("Course ID: ");
             int courseId = Integer.parseInt(scanner.nextLine());
@@ -182,43 +208,156 @@ public class SupervisorSession extends EmployeeSession implements Session {
             String in = scanner.nextLine();
             switch (in) {
                 case "<":
-                    System.out.print("please input score: ");
+                    System.out.print("input score: ");
                     int score = Integer.parseInt(scanner.nextLine());
-                    List<Takes> takesList =takesRepository.findTakesByCourse_CourseIdAndEmployee_DepartmentAndScoreLessThan(courseId, department, score);
+                    List<Takes> takesList =
+                            takesRepository.findTakesByCourse_CourseIdAndEmployee_DepartmentAndScoreLessThan(courseId, department, score);
                     if (takesList.size() == 0) {
-                        System.out.println("nobody gets the scores or the course doesn't exist or some other error");
+                        System.out.println("no result found");
                         return;
                     }
                     takesList.forEach(takes -> System.out.println(takes.employee.id + " " + takes.employee.name + " " + takes.score));
                     break;
 
                 case ">":
-                    System.out.print("please input score: ");
+                    System.out.print("input score: ");
                     int score2 = Integer.parseInt(scanner.nextLine());
-                    List<Takes> takesList2 =takesRepository.findTakesByCourse_CourseIdAndEmployee_DepartmentAndScoreGreaterThan(courseId, department, score2);
+                    List<Takes> takesList2 = takesRepository.findTakesByCourse_CourseIdAndEmployee_DepartmentAndScoreGreaterThan(courseId, department, score2);
                     if (takesList2.size() == 0) {
-                        System.out.println("nobody gets the scores or the course doesn't exist or some other error");
+                        System.out.println("no result found");
                         return;
                     }
                     takesList2.forEach(takes -> System.out.println(takes.employee.id + " " + takes.employee.name + " " + takes.score));
                     break;
 
                 case "=":
-                    System.out.print("please input score: ");
+                    System.out.print("input score: ");
                     int score3 = Integer.parseInt(scanner.nextLine());
-                    List<Takes> takesList3 =takesRepository.findTakesByCourse_CourseIdAndEmployee_DepartmentAndScore(courseId, department, score3);
+                    List<Takes> takesList3 = takesRepository.findTakesByCourse_CourseIdAndEmployee_DepartmentAndScore(courseId, department, score3);
                     if (takesList3.size() == 0) {
-                        System.out.println("nobody gets the scores or the course doesn't exist or some other error");
+                        System.out.println("no result found");
                         return;
                     }
                     takesList3.forEach(takes -> System.out.println(takes.employee.id + " " + takes.employee.name + " " + takes.score));
                     break;
 
                 default:
-                    System.out.println("wrong command");
+                    System.out.println("incorrect format");
             }
         } catch (NumberFormatException e) {
             System.out.println("incorrect format");
         }
+    }
+
+    private void checkTransfer() {
+        try {
+            /* 根据ID查找员工 */
+            System.out.print("ID: ");
+            Employee employee =
+                    employeeRepository.findById(Integer.parseInt(scanner.nextLine()))
+                            .orElseThrow(() -> new IllegalArgumentException("no such employee"));
+
+            if (transferable(employee))
+                System.out.println("transfer qualified");
+            else System.out.println("transfer not qualified");
+
+        } catch (NumberFormatException e) {
+            System.out.println("incorrect format");
+        } catch (IllegalArgumentException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    private void listTransferQualified() {
+        List<Employee> employees = employeeRepository.findEmployeesByDepartment(department);
+        employees
+                .stream()
+                .filter(this::transferable)
+                .forEach(employee -> System.out.println(employee.toString()));
+    }
+
+    private void listNewCourse() {
+        try {
+            /* 根据ID查找员工 */
+            System.out.print("ID: ");
+            Employee employee =
+                    employeeRepository.findById(Integer.parseInt(scanner.nextLine()))
+                            .orElseThrow(() -> new IllegalArgumentException("no such employee"));
+
+            /* 如员工不能转部门，则无须查询 */
+            if (!transferable(employee))
+                throw new IllegalArgumentException("transfer not qualified");
+
+            /* 获取新部门 */
+            System.out.print("department: ");
+            Department newDepartment = departmentRepository.findById(scanner.nextLine())
+                    .orElseThrow(() -> new IllegalArgumentException("department not exist"));
+
+            /* 查询并打印 */
+            List<Course> courseList = newCourseAfterTransfer(employee, newDepartment);
+            courseList.forEach(course -> System.out.println(course.toString()));
+        } catch (NumberFormatException e) {
+            System.out.println("incorrect format");
+        } catch (IllegalArgumentException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    private void transfer() {
+        try {
+            /* 根据ID查找员工 */
+            System.out.print("ID: ");
+            Employee employee =
+                    employeeRepository.findById(Integer.parseInt(scanner.nextLine()))
+                            .orElseThrow(() -> new IllegalArgumentException("no such employee"));
+
+            /* 不是本部门的员工不能转 */
+            if (!employee.department.equals(department))
+                throw new IllegalArgumentException("employee not belong to this department, access denied");
+
+            /* 教员和部门主管不能转 */
+            if (employee.equals(user) || employee.instructor)
+                throw new IllegalArgumentException("cannot transfer instructor or supervisor");
+
+            /* 如员工不能转部门，则无须查询 */
+            if (!transferable(employee))
+                throw new IllegalArgumentException("transfer not qualified");
+
+            /* 获取新部门 */
+            System.out.print("department: ");
+            Department newDepartment = departmentRepository.findById(scanner.nextLine())
+                    .orElseThrow(() -> new IllegalArgumentException("department not exist"));
+
+            /* 选修新课程 */
+            List<Course> courseList = newCourseAfterTransfer(employee, newDepartment);
+            List<Takes> toTakeList = new ArrayList<>();
+            courseList.forEach(course -> toTakeList.add(new Takes(course, employee)));
+            takesRepository.saveAll(toTakeList);
+
+            /* 更改部门 */
+            employee.department = newDepartment;
+            employeeRepository.save(employee);
+        } catch (NumberFormatException e) {
+            System.out.println("incorrect format");
+        } catch (IllegalArgumentException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    private List<Course> newCourseAfterTransfer(Employee employee, Department newDepartment) {
+        List<Link> links = linkRepository.findLinksByDepartmentAndMandatory(newDepartment, true);
+        List<Course> courseList = new ArrayList<>();
+        links.stream()
+                /* 过滤已经修读的课程 */
+                .filter(link -> !takesRepository.existsByCourseAndEmployee(link.course, employee))
+                .forEach(link -> courseList.add(link.course));
+        return courseList;
+    }
+
+    private boolean transferable(Employee employee) { // 检查员工是否能转出该部门
+        boolean allCompleted = !takesRepository.existsByEmployeeAndCompleted(employee, false);
+        boolean allPassed =
+                takesRepository.allCourse(employee.id) == takesRepository.countByEmployeeAndPassed(employee, true);
+        return allCompleted && allPassed;
     }
 }

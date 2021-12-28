@@ -36,6 +36,14 @@
 
 `allocate-course` 命令根据员工号和课程，将该员工加入该课程。
 
+`check-transfer` 命令查询员工是否有资格转部门。
+
+`list-transfer-qualified` 命令列出所有可以转部门的员工。
+
+`list-new-course` 命令列出员工转部门后需要修读的课程。
+
+`transfer` 命令为一个员工转部门。
+
 ### 系统管理员
 
 `add-department` 命令可以新建部门，新部门的主管为空。

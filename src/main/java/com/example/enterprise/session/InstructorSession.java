@@ -179,7 +179,7 @@ public class InstructorSession extends EmployeeSession implements Session {
         }
     }
 
-    private void updateCourse(){
+    private void updateCourse() {
         try {
             System.out.print("course ID: ");
             int id = Integer.parseInt(scanner.nextLine());

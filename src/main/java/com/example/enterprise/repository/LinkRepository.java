@@ -12,7 +12,9 @@ import java.util.List;
 public interface LinkRepository extends JpaRepository<Link, Integer> {
 
     List<Link> findLinksByDepartment(Department department);
+
     /* 查找必修课 */
     List<Link> findLinksByDepartmentAndMandatory(Department department, boolean mandatory);
+
     boolean existsByCourseAndDepartment(Course course, Department department);
 }

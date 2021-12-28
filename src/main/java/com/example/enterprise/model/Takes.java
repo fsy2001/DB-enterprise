@@ -51,7 +51,7 @@ public class Takes {
         return fmt.format(args);
     }
 
-    public String courseScore(){
+    public String courseScore() {
         if (!completed)
             return "";
         Object[] args = {
