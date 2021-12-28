@@ -59,6 +59,14 @@ public class SupervisorSession extends EmployeeSession implements Session {
                         allocateCourse();
                         break;
 
+                    case "search-course-score":
+                        searchCourseScore();
+                        break;
+
+                    case "search-score-employee":
+                        searchScoreEmployee();
+                        break;
+
                     case "exit":
                     case "logout":
                         alive = false;
@@ -148,6 +156,69 @@ public class SupervisorSession extends EmployeeSession implements Session {
             System.out.println("incorrect format");
         } catch (IllegalArgumentException e) {
             System.out.println(e.getMessage());
+        }
+    }
+
+    private void searchCourseScore(){
+        try {
+            System.out.print("Course ID: ");
+            int courseId = Integer.parseInt(scanner.nextLine());
+            List<Takes> takesList = takesRepository.findTakesByCourse_CourseIdAndEmployee_Department(courseId, department);
+            if (takesList.size() == 0) {
+                System.out.println("nobody takes the course or the course doesn't exist");
+                return;
+            }
+            takesList.forEach(takes -> System.out.println(takes.courseScore()));
+        } catch (NumberFormatException e) {
+            System.out.println("incorrect format");
+        }
+    }
+
+    private void searchScoreEmployee(){
+        try {
+            System.out.print("Course ID: ");
+            int courseId = Integer.parseInt(scanner.nextLine());
+            System.out.print("please choose >, < or = : ");
+            String in = scanner.nextLine();
+            switch (in) {
+                case "<":
+                    System.out.print("please input score: ");
+                    int score = Integer.parseInt(scanner.nextLine());
+                    List<Takes> takesList =takesRepository.findTakesByCourse_CourseIdAndEmployee_DepartmentAndScoreLessThan(courseId, department, score);
+                    if (takesList.size() == 0) {
+                        System.out.println("nobody gets the scores or the course doesn't exist or some other error");
+                        return;
+                    }
+                    takesList.forEach(takes -> System.out.println(takes.employee.id + " " + takes.employee.name + " " + takes.score));
+                    break;
+
+                case ">":
+                    System.out.print("please input score: ");
+                    int score2 = Integer.parseInt(scanner.nextLine());
+                    List<Takes> takesList2 =takesRepository.findTakesByCourse_CourseIdAndEmployee_DepartmentAndScoreGreaterThan(courseId, department, score2);
+                    if (takesList2.size() == 0) {
+                        System.out.println("nobody gets the scores or the course doesn't exist or some other error");
+                        return;
+                    }
+                    takesList2.forEach(takes -> System.out.println(takes.employee.id + " " + takes.employee.name + " " + takes.score));
+                    break;
+
+                case "=":
+                    System.out.print("please input score: ");
+                    int score3 = Integer.parseInt(scanner.nextLine());
+                    List<Takes> takesList3 =takesRepository.findTakesByCourse_CourseIdAndEmployee_DepartmentAndScore(courseId, department, score3);
+                    if (takesList3.size() == 0) {
+                        System.out.println("nobody gets the scores or the course doesn't exist or some other error");
+                        return;
+                    }
+                    takesList3.forEach(takes -> System.out.println(takes.employee.id + " " + takes.employee.name + " " + takes.score));
+                    break;
+
+                default:
+                    System.out.println("wrong command");
+            }
+        } catch (NumberFormatException e) {
+            System.out.println("incorrect format");
         }
     }
 }

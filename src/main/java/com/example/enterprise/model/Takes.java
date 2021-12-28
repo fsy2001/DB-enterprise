@@ -50,4 +50,20 @@ public class Takes {
 
         return fmt.format(args);
     }
+
+    public String courseScore(){
+        if (!completed)
+            return "";
+        Object[] args = {
+                finishDate.toString(),
+                employee.id,
+                employee.name,
+                passed ? "passed" : "failed",
+                score
+        };
+        MessageFormat fmt = new MessageFormat(
+                "{0} - {1}, {2}, {3} score: {4}");
+
+        return fmt.format(args);
+    }
 }

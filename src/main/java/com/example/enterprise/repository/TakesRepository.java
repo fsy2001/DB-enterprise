@@ -1,6 +1,7 @@
 package com.example.enterprise.repository;
 
 import com.example.enterprise.model.Course;
+import com.example.enterprise.model.Department;
 import com.example.enterprise.model.Employee;
 import com.example.enterprise.model.Takes;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -15,4 +16,12 @@ public interface TakesRepository extends JpaRepository<Takes, Integer> {
     List<Takes> findTakesByCourseAndCompleted(Course course, Boolean completed);
     /* 查找该员工该门课是否正在修读 */
     boolean existsByCourseAndEmployeeAndCompleted(Course course, Employee employee, Boolean completed);
+
+    List<Takes> findTakesByCourse_CourseIdAndEmployee_Department(Integer course_courseId, Department employee_department);
+
+    List<Takes> findTakesByCourse_CourseIdAndEmployee_DepartmentAndScoreLessThan(Integer course_courseId, Department employee_department, Integer score);
+
+    List<Takes> findTakesByCourse_CourseIdAndEmployee_DepartmentAndScoreGreaterThan(Integer course_courseId, Department employee_department, Integer score);
+
+    List<Takes> findTakesByCourse_CourseIdAndEmployee_DepartmentAndScore(Integer course_courseId, Department employee_department, Integer score);
 }
