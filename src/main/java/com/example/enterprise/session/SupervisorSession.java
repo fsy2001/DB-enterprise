@@ -153,6 +153,14 @@ public class SupervisorSession extends EmployeeSession implements Session {
             Employee employee = employeeRepository.findById(employeeId)
                     .orElseThrow(() -> new IllegalArgumentException("no such employee"));
 
+            /* 非本部门员工不得添加 */
+            if (!employee.department.equals(department))
+                throw new IllegalArgumentException("employee not belongs to this department");
+
+            if (employee.instructor ||
+                    (employee.department.supervisor != null && employee.department.supervisor.equals(employee)))
+                throw new IllegalArgumentException("instructor or supervisor cannot take course"); // 教员和部门主管免修
+
             /* 查找课程 */
             System.out.print("course ID: ");
             int courseId = Integer.parseInt(scanner.nextLine());
@@ -355,6 +363,9 @@ public class SupervisorSession extends EmployeeSession implements Session {
     }
 
     private boolean transferable(Employee employee) { // 检查员工是否能转出该部门
+        if ((employee.department.supervisor != null && employee.department.supervisor.equals(employee))
+                || employee.instructor)
+            return false;
         boolean allCompleted = !takesRepository.existsByEmployeeAndCompleted(employee, false);
         boolean allPassed =
                 takesRepository.allCourse(employee.id) == takesRepository.countByEmployeeAndPassed(employee, true);
