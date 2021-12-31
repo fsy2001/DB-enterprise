@@ -116,6 +116,8 @@ public class InstructorSession extends EmployeeSession implements Session {
             courseRepository.save(course);
             linkRepository.saveAll(links);
 
+            logRepository.save(new Log("add", "course", course.courseName));
+
             /* 将必修课员工添加到名单 */
             for (Link link : links)
                 if (link.mandatory) enroll(link.department, course);
@@ -138,6 +140,7 @@ public class InstructorSession extends EmployeeSession implements Session {
                     (employee.department.supervisor != null && employee.department.supervisor.equals(employee)))
                 continue; // 教员和部门主管免修
             Takes takes = new Takes(course, employee);
+            logRepository.save(new Log("add", "takes", course.courseName + " - " + employee.name));
             takesList.add(takes);
         }
 
@@ -171,6 +174,8 @@ public class InstructorSession extends EmployeeSession implements Session {
             }
 
             takesRepository.saveAll(takesList);
+            takesList.forEach(takes ->
+                    logRepository.save(new Log("update", "takes", "set score - " + takes.number)));
 
         } catch (NumberFormatException | ConstraintViolationException e) {
             System.out.println("incorrect format");
@@ -191,6 +196,8 @@ public class InstructorSession extends EmployeeSession implements Session {
             System.out.print("course summary: ");
             course.summary = scanner.nextLine();
             courseRepository.save(course);
+
+            logRepository.save(new Log("update", "course", course.courseId.toString()));
         } catch (NumberFormatException e) {
             System.out.println("incorrect format");
         } catch (IllegalArgumentException e) {

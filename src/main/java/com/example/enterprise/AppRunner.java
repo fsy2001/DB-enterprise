@@ -17,13 +17,15 @@ public class AppRunner {
                      EmployeeRepository employeeRepository,
                      DepartmentRepository departmentRepository,
                      TakesRepository takesRepository,
-                     LinkRepository linkRepository) {
+                     LinkRepository linkRepository,
+                     LogRepository logRepository) {
         this.holder =
                 new RepositoryHolder(courseRepository,
                         employeeRepository,
                         departmentRepository,
                         takesRepository,
-                        linkRepository);
+                        linkRepository,
+                        logRepository);
     }
 
     private void initData() {

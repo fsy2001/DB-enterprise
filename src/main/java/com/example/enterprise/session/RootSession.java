@@ -15,6 +15,7 @@ public class RootSession implements Session {
     private final CourseRepository courseRepository;
     private final LinkRepository linkRepository;
     private final TakesRepository takesRepository;
+    private final LogRepository logRepository;
     private final Scanner scanner = new Scanner(System.in);
 
     public RootSession(RepositoryHolder holder) {
@@ -23,6 +24,7 @@ public class RootSession implements Session {
         this.courseRepository = holder.courseRepository;
         this.linkRepository = holder.linkRepository;
         this.takesRepository = holder.takesRepository;
+        this.logRepository = holder.logRepository;
     }
 
     @Override
@@ -159,6 +161,8 @@ public class RootSession implements Session {
 
             Employee newEmployee = employeeRepository.save(employee);
 
+            logRepository.save(new Log("add", "employee", employee.name));
+
             /* 为新入职的员工分配必修课程 */
             List<Link> links =
                     linkRepository.findLinksByDepartmentAndMandatory(newEmployee.department, true);
@@ -166,6 +170,7 @@ public class RootSession implements Session {
             links.forEach(link -> {
                 Takes takes = new Takes(link.course, newEmployee);
                 toTakeList.add(takes);
+                logRepository.save(new Log("add", "take", employee.name + " - " + link.course.courseName));
             });
             takesRepository.saveAll(toTakeList);
 
@@ -194,7 +199,7 @@ public class RootSession implements Session {
 
             employee.instructor = true;
             employeeRepository.save(employee);
-
+            logRepository.save(new Log("update", "employee", employee.name + " - instructor"));
         } catch (NumberFormatException e) {
             System.out.println("incorrect format");
         } catch (IllegalArgumentException e) {
@@ -270,6 +275,7 @@ public class RootSession implements Session {
                 System.out.print("enter property (or finish): ");
             }
             employeeRepository.save(employee);
+            logRepository.save(new Log("update", "employee", employee.id.toString()));
         } catch (NumberFormatException | ConstraintViolationException e) {
             System.out.println("incorrect format");
         } catch (IllegalArgumentException e) {
@@ -289,6 +295,8 @@ public class RootSession implements Session {
             System.out.print("course summary: ");
             course.summary = scanner.nextLine();
             courseRepository.save(course);
+
+            logRepository.save(new Log("update", "course", course.courseId.toString()));
         } catch (NumberFormatException e) {
             System.out.println("incorrect format");
         } catch (IllegalArgumentException e) {

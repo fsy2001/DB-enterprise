@@ -1,8 +1,10 @@
 package com.example.enterprise.session;
 
 import com.example.enterprise.model.Employee;
+import com.example.enterprise.model.Log;
 import com.example.enterprise.model.Takes;
 import com.example.enterprise.repository.EmployeeRepository;
+import com.example.enterprise.repository.LogRepository;
 import com.example.enterprise.repository.RepositoryHolder;
 import com.example.enterprise.repository.TakesRepository;
 
@@ -15,12 +17,14 @@ public class EmployeeSession implements Session {
     protected final Employee user;
     protected final EmployeeRepository employeeRepository;
     protected final TakesRepository takesRepository;
+    protected final LogRepository logRepository;
     protected Scanner scanner = new Scanner(System.in);
 
     public EmployeeSession(RepositoryHolder holder, Employee user) {
         this.holder = holder;
         this.employeeRepository = holder.employeeRepository;
         this.takesRepository = holder.takesRepository;
+        this.logRepository = holder.logRepository;
         this.user = user;
     }
 
@@ -108,6 +112,7 @@ public class EmployeeSession implements Session {
                 System.out.print("enter property (or finish): ");
             }
             employeeRepository.save(user);
+            logRepository.save(new Log("update", "employee", user.id.toString()));
         } catch (NumberFormatException | ConstraintViolationException e) {
             System.out.println("incorrect format");
         } catch (IllegalArgumentException e) {

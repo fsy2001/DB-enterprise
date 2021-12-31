@@ -290,7 +290,7 @@ public class SupervisorSession extends EmployeeSession implements Session {
         employees
                 .stream()
                 .filter(this::transferable)
-                .forEach(employee -> System.out.println(employee.toString()));
+                .forEach(System.out::println);
     }
 
     private void listNewCourse() {
@@ -394,10 +394,10 @@ public class SupervisorSession extends EmployeeSession implements Session {
                     System.out.print("input times: ");
                     int times = Integer.parseInt(scanner.nextLine());
                     List<Integer> takesList = takesRepository.findFailedEmployeesEquals(courseId, times);
-                    for (int i = 0; i < takesList.size(); i++) {
-                        boolean belongToDepartment = employeeRepository.existsByIdAndDepartment(takesList.get(i), department);
+                    for (Integer integer : takesList) {
+                        boolean belongToDepartment = employeeRepository.existsByIdAndDepartment(integer, department);
                         if (belongToDepartment) {
-                            System.out.println(takesList.get(i));
+                            System.out.println(integer);
                         }
                     }
                     break;
@@ -406,10 +406,10 @@ public class SupervisorSession extends EmployeeSession implements Session {
                     System.out.print("input times: ");
                     int times2 = Integer.parseInt(scanner.nextLine());
                     List<Integer> takesList2 = takesRepository.findFailedEmployeesGreater(courseId, times2);
-                    for (int i = 0; i < takesList2.size(); i++) {
-                        boolean belongToDepartment = employeeRepository.existsByIdAndDepartment(takesList2.get(i), department);
+                    for (Integer integer : takesList2) {
+                        boolean belongToDepartment = employeeRepository.existsByIdAndDepartment(integer, department);
                         if (belongToDepartment) {
-                            System.out.println(takesList2.get(i));
+                            System.out.println(integer);
                         }
                     }
                     break;
@@ -418,10 +418,10 @@ public class SupervisorSession extends EmployeeSession implements Session {
                     System.out.print("input times: ");
                     int times3 = Integer.parseInt(scanner.nextLine());
                     List<Integer> takesList3 = takesRepository.findFailedEmployeesLesser(courseId, times3);
-                    for (int i = 0; i < takesList3.size(); i++) {
-                        boolean belongToDepartment = employeeRepository.existsByIdAndDepartment(takesList3.get(i), department);
+                    for (Integer integer : takesList3) {
+                        boolean belongToDepartment = employeeRepository.existsByIdAndDepartment(integer, department);
                         if (belongToDepartment) {
-                            System.out.println(takesList3.get(i));
+                            System.out.println(integer);
                         }
                     }
                     break;
