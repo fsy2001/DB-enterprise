@@ -12,4 +12,6 @@ public interface EmployeeRepository extends JpaRepository<Employee, Integer> {
     List<Employee> findEmployeesByDepartment(Department department);
 
     List<Employee> findEmployeesByNameLikeAndDepartment(String name, Department department);
+
+    Boolean existsByIdAndDepartment(Integer id, Department department);
 }

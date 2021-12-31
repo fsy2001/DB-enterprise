@@ -1,10 +1,7 @@
 package com.example.enterprise.session;
 
 import com.example.enterprise.model.*;
-import com.example.enterprise.repository.CourseRepository;
-import com.example.enterprise.repository.DepartmentRepository;
-import com.example.enterprise.repository.LinkRepository;
-import com.example.enterprise.repository.RepositoryHolder;
+import com.example.enterprise.repository.*;
 
 import javax.validation.ConstraintViolationException;
 import java.util.ArrayList;
@@ -85,6 +82,10 @@ public class SupervisorSession extends EmployeeSession implements Session {
 
                     case "transfer":
                         transfer();
+                        break;
+
+                    case "search-course-times":
+                        searchCourseTimes();
                         break;
 
                     case "exit":
@@ -196,6 +197,8 @@ public class SupervisorSession extends EmployeeSession implements Session {
         try {
             System.out.print("Course ID: ");
             int courseId = Integer.parseInt(scanner.nextLine());
+            if (!linkRepository.existsByCourse_CourseIdAndDepartment(courseId, department))
+                throw new IllegalArgumentException("course not within department jurisdiction or not exist");
             List<Takes> takesList =
                     takesRepository.findTakesByCourse_CourseIdAndEmployee_Department(courseId, department);
             if (takesList.size() == 0) {
@@ -205,6 +208,8 @@ public class SupervisorSession extends EmployeeSession implements Session {
             takesList.forEach(takes -> System.out.println(takes.courseScore()));
         } catch (NumberFormatException e) {
             System.out.println("incorrect format");
+        } catch (IllegalArgumentException e) {
+            System.out.println(e.getMessage());
         }
     }
 
@@ -212,6 +217,8 @@ public class SupervisorSession extends EmployeeSession implements Session {
         try {
             System.out.print("Course ID: ");
             int courseId = Integer.parseInt(scanner.nextLine());
+            if (!linkRepository.existsByCourse_CourseIdAndDepartment(courseId, department))
+                throw new IllegalArgumentException("course not within department jurisdiction or not exist");
             System.out.print("please choose >, < or = : ");
             String in = scanner.nextLine();
             switch (in) {
@@ -254,6 +261,8 @@ public class SupervisorSession extends EmployeeSession implements Session {
             }
         } catch (NumberFormatException e) {
             System.out.println("incorrect format");
+        } catch (IllegalArgumentException e) {
+            System.out.println(e.getMessage());
         }
     }
 
@@ -370,5 +379,60 @@ public class SupervisorSession extends EmployeeSession implements Session {
         boolean allPassed =
                 takesRepository.allCourse(employee.id) == takesRepository.countByEmployeeAndPassed(employee, true);
         return allCompleted && allPassed;
+    }
+
+    private void searchCourseTimes() {
+        try {
+            System.out.print("Course ID: ");
+            int courseId = Integer.parseInt(scanner.nextLine());
+            if (!linkRepository.existsByCourse_CourseIdAndDepartment(courseId, department))
+                throw new IllegalArgumentException("course not within department jurisdiction or not exist");
+            System.out.print("please choose >, < or = : ");
+            String in = scanner.nextLine();
+            switch (in) {
+                case "=":
+                    System.out.print("input times: ");
+                    int times = Integer.parseInt(scanner.nextLine());
+                    List<Integer> takesList = takesRepository.findFailedEmployeesEquals(courseId, times);
+                    for (int i = 0; i < takesList.size(); i++) {
+                        boolean belongToDepartment = employeeRepository.existsByIdAndDepartment(takesList.get(i), department);
+                        if (belongToDepartment) {
+                            System.out.println(takesList.get(i));
+                        }
+                    }
+                    break;
+
+                case ">":
+                    System.out.print("input times: ");
+                    int times2 = Integer.parseInt(scanner.nextLine());
+                    List<Integer> takesList2 = takesRepository.findFailedEmployeesGreater(courseId, times2);
+                    for (int i = 0; i < takesList2.size(); i++) {
+                        boolean belongToDepartment = employeeRepository.existsByIdAndDepartment(takesList2.get(i), department);
+                        if (belongToDepartment) {
+                            System.out.println(takesList2.get(i));
+                        }
+                    }
+                    break;
+
+                case "<":
+                    System.out.print("input times: ");
+                    int times3 = Integer.parseInt(scanner.nextLine());
+                    List<Integer> takesList3 = takesRepository.findFailedEmployeesLesser(courseId, times3);
+                    for (int i = 0; i < takesList3.size(); i++) {
+                        boolean belongToDepartment = employeeRepository.existsByIdAndDepartment(takesList3.get(i), department);
+                        if (belongToDepartment) {
+                            System.out.println(takesList3.get(i));
+                        }
+                    }
+                    break;
+
+                default:
+                    System.out.println("incorrect format");
+            }
+        } catch (NumberFormatException e) {
+            System.out.println("incorrect format");
+        } catch (IllegalArgumentException e) {
+            System.out.println(e.getMessage());
+        }
     }
 }

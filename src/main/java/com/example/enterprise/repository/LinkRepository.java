@@ -17,4 +17,6 @@ public interface LinkRepository extends JpaRepository<Link, Integer> {
     List<Link> findLinksByDepartmentAndMandatory(Department department, boolean mandatory);
 
     boolean existsByCourseAndDepartment(Course course, Department department);
+
+    boolean existsByCourse_CourseIdAndDepartment(Integer courseId, Department department);
 }

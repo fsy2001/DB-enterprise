@@ -39,4 +39,25 @@ public interface TakesRepository extends JpaRepository<Takes, Integer> {
     int allCourse(int employeeId);
 
     int countByEmployeeAndPassed(Employee employee, Boolean passed);
+
+    @Query(value = "select distinct(employee_id) as target_id from takes as general " +
+            "where " +
+            "(select count(number) from takes where course_course_id = ?1 " +
+            "and passed = false and employee_id = general.employee_id) = ?2",
+            nativeQuery = true)
+    List<Integer> findFailedEmployeesEquals(int courseId, int failCount);
+
+    @Query(value = "select distinct(employee_id) as target_id from takes as general " +
+            "where " +
+            "(select count(number) from takes where course_course_id = ?1 " +
+            "and passed = false and employee_id = general.employee_id) > ?2",
+            nativeQuery = true)
+    List<Integer> findFailedEmployeesGreater(int courseId, int failCount);
+
+    @Query(value = "select distinct(employee_id) as target_id from takes as general " +
+            "where " +
+            "(select count(number) from takes where course_course_id = ?1 " +
+            "and passed = false and employee_id = general.employee_id) < ?2",
+            nativeQuery = true)
+    List<Integer> findFailedEmployeesLesser(int courseId, int failCount);
 }
