@@ -67,6 +67,10 @@ public class RootSession implements Session {
                         updateCourse();
                         break;
 
+                    case "dump-log":
+                        dumpLog();
+                        break;
+
                     case "exit":
                         alive = false;
                         break;
@@ -302,5 +306,9 @@ public class RootSession implements Session {
         } catch (IllegalArgumentException e) {
             System.out.println(e.getMessage());
         }
+    }
+
+    private void dumpLog() {
+        logRepository.findAll().forEach(System.out::println);
     }
 }
