@@ -100,6 +100,7 @@ public class RootSession implements Session {
 
             Department department = new Department(departmentName);
             departmentRepository.save(department);
+            logRepository.save(new Log("add", "department", department.departmentName));
         } catch (ConstraintViolationException e) {
             System.out.println("incorrect format");
         }
@@ -131,6 +132,7 @@ public class RootSession implements Session {
             /* 绑定并储存 */
             department.supervisor = employee;
             departmentRepository.save(department);
+            logRepository.save(new Log("update", "supervisor", employee.id + " as " + departmentName +"'s supervisor"));
         } catch (NumberFormatException | ConstraintViolationException e) {
             System.out.println("incorrect format");
         } catch (IllegalArgumentException e) {

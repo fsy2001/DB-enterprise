@@ -21,6 +21,8 @@ public class Log {
         this.description = description;
     }
 
+    public Log(){}
+
     @Override
     public String toString() {
         return "Log{" +

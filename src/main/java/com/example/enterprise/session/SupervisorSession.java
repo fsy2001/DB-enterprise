@@ -185,6 +185,7 @@ public class SupervisorSession extends EmployeeSession implements Session {
             /* 创建并存储修读记录 */
             Takes takes = new Takes(course, employee);
             takesRepository.save(takes);
+            logRepository.save(new Log("add", "course", "make " + employeeId + " take course " + courseId));
 
         } catch (NumberFormatException | ConstraintViolationException e) {
             System.out.println("incorrect format");
@@ -354,6 +355,7 @@ public class SupervisorSession extends EmployeeSession implements Session {
             /* 更改部门 */
             employee.department = newDepartment;
             employeeRepository.save(employee);
+            logRepository.save(new Log("update", "employee", "transfer to " + employee.department.departmentName));
         } catch (NumberFormatException e) {
             System.out.println("incorrect format");
         } catch (IllegalArgumentException e) {
